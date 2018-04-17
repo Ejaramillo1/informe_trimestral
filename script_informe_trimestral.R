@@ -1,12 +1,29 @@
 library(easypackages)
-my_packages <- c("readr", "tidyverse", "lubridate", "xts",  "tidyquant", "ggrepel", "reshape2")
+my_packages <- c("readxl", "tidyverse", "lubridate", "xts",  "tidyquant", "ggrepel", "reshape2")
 libraries(my_packages)
 
-db <- read.csv("BIE_BIE20180413143330.csv", encoding = "Latin-1")
+
+db <- read_excel("BIE_BIE20180416182227.xls", 
+                                    skip = 1)
 
 data <- db %>%
-  select(contains("Número.de.establecimientos.activos.según.entidades.federativas.y.municipios.Total.nacional"), Periodo) %>%
-  rename("immex_no" = "Manufacturas...Industria.manufacturera..maquiladora.y.de.servicios.de.exportación..IMMEX....Por.entidad.federativa...Establecimientos.manufactureros...Número.de.establecimientos.activos.según.entidades.federativas.y.municipios.Total.nacional.b...p9...f6...Número.de.establecimientos..Mensual") %>%
+  select(contains("Indicador global de la actividad económica Tendencia"), Periodo) %>%
+  rename_all(
+    funs(
+      stringr::str_replace_all(.,"(.+>)", "")
+    )
+  ) %>%
+  rename("IGAE" = " Indicador global de la actividad económica Tendencia f3/ (Índice base 2013=100)")
+
+
+
+data <- db %>%
+  select(contains("Indicador global de la actividad económica Tendencia"), Periodo) %>%
+  rename_all(funs(str_extract_all(., pattern = "")))
+  
+
+
+rename("immex_no" = "Manufacturas...Industria.manufacturera..maquiladora.y.de.servicios.de.exportación..IMMEX....Por.entidad.federativa...Establecimientos.manufactureros...Número.de.establecimientos.activos.según.entidades.federativas.y.municipios.Total.nacional.b...p9...f6...Número.de.establecimientos..Mensual") %>%
   filter(!is.na(immex_no)) %>%
   separate(Periodo,into = c("anio", "mes")) %>%
   mutate(day = 01,
@@ -15,10 +32,14 @@ data <- db %>%
 
 
 
+
+
+
+
 data %>%
-  filter(anio > 2014) %>%
+  filter(anio > 2010) %>%
   ggplot() +
-  geom_histogram(aes(growth, fill = anio))
+  geom_bar(aes(growth, fill = anio))
 
 
 data %>%
