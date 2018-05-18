@@ -1,0 +1,209 @@
+
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = FALSE)
+
+library(easypackages)
+my_packages <- c("readr", "readxl", "tidyverse", "lubridate", "xts",  "tidyquant", "ggrepel", "reshape2", "ggseas", "extrafont")
+libraries(my_packages)
+
+loadfonts(device = "win")
+fonts()
+
+db <- read.csv("BIE_BIE20180413143330.csv", encoding = "Latin-1")
+
+bd <- read_excel("BIE_BIE20180416182227.xls", 
+                                    skip = 1)
+```
+
+#QUARTERLY REPORT
+
+
+
+The first quarter of 2018 was a difficult one for the Mexican economy. There´s a little slowdown in the economic activity mainly because of the uncertainty caused by NAFTA renegotiation and the next presidential elecions by July 2018. According to Colliers. "If full scale global trade wars can be avoided and a mutually adreed upon revised NAFTA agreement can be finalized, the Tijuana market, and for Mexico in general the outlook for 2018 will be very brigth"
+
+The main data sources for developing this report were DATOZ, AMPIP, SOLILI, INEGI, COLLIERS, NAI, DENUE, and SCIAN.
+
+La base de datos de SOLILI, a diferencia de la empresa DATOZ contiene un inventario mayor de naves industriales, aproximadamente 9 millones de pies cuadrados. Esto es debido a que la base de datos de SOLILI contiene una mayor variedad de propiedades, las cuales incluyen construcciones con mayor antigüedad, por ejemplo bodegas que son edificadas con bajos estándares de calidad, por empresas que no están formalmente establecidas. Adicionalmente algunas de estas propiedades están fuera de los parques industriales establecidos y el precio de arrendamiento que ofrecen es significativamente bajo. 
+
+Las diferencias fundamentales respecto a las bases de datos antes mencionadas son las siguientes.
+
+ 1. El inventario total de SOLILI es de 887 propiedades
+
+Sin embargo a pesar de estas diferencias, no podemos descartar estas propiedades puesto que están en el mercado y pueden ser ocupadas por clientes potenciales de ATISA INDUSTRIAL. 
+
+La empresa DATOZ contiene principalmente propiedades que fueron edificadas por empresas establecidas y están dentro de un parque industrial formalmente establecido, generalmente son de reciente construcción y el arrendamiento lo realizan a través de los brokers formales.
+
+El propósito de estudiar la marcha de los indicadores cada mes tiene el objetivo de entender y anticipar dónde estamos en relación con el ciclo económico. Las desiciones que se pueden tomar en torno a las inversiones.
+
+
+\newpage
+
+```{r warning=FALSE, echo=FALSE, fig.show='hold', fig.align='right', fig.width=3.5, fig.height=2.5}
+
+bd %>%
+  select(contains("Indicador global de la actividad económica Tendencia"), 
+    Periodo) %>%
+  rename_all(
+    funs(
+      stringr::str_replace_all(.,"(.+>)", "")
+    )
+  ) %>%
+  rename("IGAE"                                = " Indicador global de la actividad económica Tendencia f3/ (Índice base 2013=100)") %>%
+  separate(Periodo, 
+           into                                = c("year", "month"), 
+           sep                                 = "/") %>%
+  filter(!is.na(IGAE)) %>% 
+  mutate(dia                                   = 01,
+         fecha                                 = mdy(paste0(month, "-", dia, "-", year)),
+         rocigae                               = ROC(IGAE)) %>%
+  ggplot(aes(fecha, rocigae*100)) + 
+  geom_line(size                               = .2, 
+            colour                             = "#000000") +
+  ggtitle("TENDENCIA DEL IGAE") + 
+  xlab(label                                   = "PERIODO") +
+  ylab(label                                   = "TASA DE CRECIMIENTO") + 
+  labs(subtitle                                = "Tendencia Indicador Global de la Actividad Económica",
+       caption                                 = "Fuente: Elaboración propia con datos de INEGI") +
+  scale_x_date(date_breaks                     = "3 year",
+               date_labels                     = "%Y") +
+  theme_minimal() + 
+  theme(title            = element_text(size   = 8,
+                                        family = "Roboto Condensed Light",
+                                        color  = "#ca2128"),
+        axis.title.x     = element_text(size   = 6,
+                                        colour = "black",
+                                        family = "Roboto Black",
+                                        color  = "#666666"),
+        axis.title.y     = element_text(size   = 6,
+                                        colour = "black",
+                                        family = "Roboto Black",
+                                        color  = "#666666"),
+        axis.text.x      = element_text(angle  = 45,
+                                        hjust  = 1,
+                                        size   = 5,
+                                        family = "Roboto Thin",
+                                        color  = "#323232"),
+        axis.text.y      = element_text(size   = 5,
+                                        family = "Roboto Thin",
+                                        color  = "#323232"),
+        plot.subtitle    = element_text(size   = 5,
+                                        color  = "black"),
+        plot.caption     = element_text(color  = "#191919",
+                                        size   = 4,
+                                        family = "Roboto Thin"),
+        panel.grid.major = element_line(size   = 0.2))
+
+```
+
+
+
+
+\begin{multicols}{2}
+
+Dada nuestra dependencia de Estados Unidos, resulta muy conveniente realizar el seguimiento de la economía norteamericana, pero en especial aquellas variables que pudieran afectar de forma directa la demanda de importaciones que provienen de México
+```{r warning=FALSE, echo=FALSE, fig.width=3.5, fig.height=2.5, fig.show='hold', fig.align='left'}
+db %>%
+  select(contains("Indicador.global.de.la.actividad.económica"), Periodo) %>%
+  rename("IGAE" = "Indicadores.económicos.de.coyuntura...Indicador.global.de.la.actividad.económica..base.2013...Series.originales...Índice.de.volumen.físico.Total.p2...f3...Índice.base.2013.100..Mensual") %>%
+  select(Periodo, IGAE) %>%
+  filter(!is.na(IGAE)) %>%
+  mutate(Periodo = ymd(as_date(paste0(Periodo, sep = "/" ,"01")))) %>%
+  filter(Periodo > "2015-01-01") %>%
+  ggplot(aes(x = Periodo, y = IGAE, label = paste0(month(Periodo, label = TRUE), "-" ,year(Periodo)))) +
+  geom_point(size = 0.2) +
+  geom_vline(aes(xintercept = as.numeric(Periodo[c(24)])), linetype = 4, colour = "black") +
+  geom_line(size = 0.2, color = "#000000") +
+  geom_ma(n = 3, size = .5) +
+  scale_x_date(date_breaks = "3 months", 
+               date_labels = "%b %y") +
+  xlab(label = "PERIODO") +
+  ylab(label = "INDICADOR") +
+  labs(title = "COMPORTAMIENTO MENSUAL DEL IGAE 2015 - 2017",
+       subtitle = "Indicador Global de la Activida Económica",
+       caption = "Fuente: Elaboración propia con datos del INEGI") + 
+  theme_minimal() +
+  theme(title            = element_text(size   = 8,
+                                        family = "Roboto Condensed Light",
+                                        color  = "#ca2128"),
+        axis.title.x     = element_text(size   = 6,
+                                        colour = "black",
+                                        family = "Roboto Black",
+                                        color  = "#666666"),
+        axis.title.y     = element_text(size   = 6,
+                                        colour = "black",
+                                        family = "Roboto Black",
+                                        color  = "#666666"),
+        axis.text.x      = element_text(angle  = 45,
+                                        hjust  = 1,
+                                        size   = 5,
+                                        family = "Roboto Thin",
+                                        color  = "#323232"),
+        axis.text.y      = element_text(size   = 5,
+                                        family = "Roboto Thin",
+                                        color  = "#323232"),
+        plot.subtitle    = element_text(size   = 5,
+                                        color  = "black"),
+        plot.caption     = element_text(color  = "#191919",
+                                        size   = 4,
+                                        family = "Roboto Thin"),
+        panel.grid.major = element_line(size   = 0.2))
+```
+\end{multicols}
+
+```{r warning=FALSE, fig.width=3.5, fig.height=2.5, echo=FALSE}
+
+db %>%
+  select(contains("Indicador.global.de.la.actividad.económica"), Periodo) %>%
+  rename("IGAE" = "Indicadores.económicos.de.coyuntura...Indicador.global.de.la.actividad.económica..base.2013...Series.originales...Índice.de.volumen.físico.Total.p2...f3...Índice.base.2013.100..Mensual") %>%
+  select(Periodo, IGAE) %>%
+  filter(!is.na(IGAE)) %>%
+  mutate(Periodo = ymd(as_date(paste0(Periodo, sep = "/" ,"01"))),
+         prc_igae = c(NA, exp(diff(log(IGAE)))-1),
+         color = if_else(prc_igae < 0, "negative", "positive")) %>%
+  filter(Periodo > "2015-01-01") %>%
+  ggplot(aes(x = Periodo, y = prc_igae*100)) +
+  geom_bar(stat = "identity", position = "dodge", aes(fill = color)) +
+  geom_text_repel(aes(label = round(prc_igae * 100, digits = 2)), size = 1.5, color = "#666666", force = 2) +
+  theme_tq() + 
+  scale_fill_manual(values = c(positive = "#3a3a40" , negative = "#8f8fa0")) + 
+  scale_x_date(date_breaks = "3 months", 
+               date_labels = "%b %y") +
+  xlab(label = "PERIODO") + 
+  ylab(label = "INCREMENTO PORCENTUAL") +
+  theme(legend.position = "none") + 
+  geom_vline(aes(xintercept = as.numeric(Periodo[c(24)])), linetype = 4, colour = "black") +
+  labs(title = "TASA DE CRECIMIENTO IGAE",
+       subtitle = "Incremento porcentual respecto al mes pasado",
+       caption = "Fuente: Elaboración propia con datos de INEGI") + 
+  theme_minimal() +
+  theme(title            = element_text(size   = 8,
+                                        family = "Roboto Condensed Light",
+                                        color  = "#ca2128"),
+        axis.title.x     = element_text(size   = 6,
+                                        colour = "black",
+                                        family = "Roboto Black",
+                                        color  = "#666666"),
+        axis.title.y     = element_text(size   = 6,
+                                        colour = "black",
+                                        family = "Roboto Black",
+                                        color  = "#666666"),
+        axis.text.x      = element_text(angle  = 45,
+                                        hjust  = 1,
+                                        size   = 5,
+                                        family = "Roboto Thin",
+                                        color  = "#323232"),
+        axis.text.y      = element_text(size   = 5,
+                                        family = "Roboto Thin",
+                                        color  = "#323232"),
+        plot.subtitle    = element_text(size   = 5,
+                                        color  = "black"),
+        plot.caption     = element_text(color  = "#191919",
+                                        size   = 4,
+                                        family = "Roboto Thin"),
+        panel.grid.major = element_line(size   = 0.2),
+        legend.position = "null")
+  
+```
+\newpage

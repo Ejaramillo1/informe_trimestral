@@ -1,0 +1,220 @@
+---
+header-includes:
+- \usepackage{fancyhdr}
+- \usepackage{multicol}
+- \usepackage[section]{placeins}
+output:
+  pdf_document:
+    fig_caption: yes
+---
+\addtolength{\headheight}{1.0cm} 
+\pagestyle{fancyplain} 
+\rhead{\includegraphics[height=1.2cm]{C:/Users/pvelazquez/Google Drive/INFORME TRIMESTRAL/INFORME_TRIMESTRAL/logo.jpg}}
+\renewcommand{\headrulewidth}{0pt}
+
+# AVAILABLE BUILDINGS IN TIJUANA MARKET
+
+En esta tabla podemos observar el precio de arrendamiento para edificios industriales ubicados en Tijuana asociados a la empresa de corretaje que los está promoviendo según datos de SOLILI.
+
+La principal conclusión que podemos obtener de la tabla 1 es que la empresa de corretaje con un mayor precio por pie cuadrado es Bustamante Realty Group con $\$55ft^2$
+
+
+
+```{r warning=FALSE, echo=FALSE, results='asis'}
+options(knitr.kable.NA = '')
+
+library("tidyverse")
+library("xtable")
+naves <- readxl::read_excel("Datos Naves Industriales.xlsx",sheet = "Mayo")
+
+print.xtable(xtable(naves %>%
+  group_by(`Empresa de Arrendamiento`, Clase) %>%
+  summarise(av_price = mean(`Precio de Renta`, na.rm = TRUE)) %>%
+  spread(Clase, av_price) %>%
+  arrange(desc(A)), caption = "LEASE RATES BY BUILDING CLASS AND BROKER"), comment = FALSE, caption.placement = "top", include.rownames = FALSE, format.args = list(big.mark = ",", decimal.mark = "."))
+
+```
+
+\FloatBarrier
+
+En la siguiente tabla podemos observar un resumen de las empresas de corretaje que actualmente cuentan con inventario clase A. Se dividieron los edificios por el estado actual es decir, si se encuentran en construcción, planeados o existentes.
+
+Observamos por ejemplo que el top 5 de parques industriales con mayor cantidad de pies cuadrados en existencia son *La Encantada*, *Roca Otay Alamar*, *FINSA Alamar*, *El Florido*. En total hay en Tijuana 
+
+
+
+
+```{r warning=FALSE, echo=FALSE, results='asis'}
+
+library(janitor)
+
+print.xtable(xtable(naves %>%
+  select("Parque Industrial", Clase, Estado, "Espacio Disponible") %>%
+  filter(Clase %in% c("A")) %>%
+  group_by(`Parque Industrial`, Estado) %>%
+  summarise(disp = sum(`Espacio Disponible`, na.rm = TRUE)) %>%
+  spread(Estado, disp)%>%
+  arrange(desc(Existente)) %>%
+  adorn_totals("row"), 
+  caption = "CLASS A INVENTORY BUILDINGS IN TIJUANA")
+  , comment = FALSE, caption.placement = "top", include.rownames = FALSE, format.args = list(big.mark = ",", decimal.mark = ".")) 
+
+```
+
+
+
+
+```{r warning=FALSE, echo=FALSE, results='asis'}
+
+print.xtable(xtable(naves %>%
+  select("Parque Industrial", Clase, Estado, "Espacio Disponible") %>%
+  filter(Clase %in% c("B")) %>%
+  group_by(`Parque Industrial`, Estado) %>%
+  summarise(disp = sum(`Espacio Disponible`, na.rm = TRUE)) %>%
+  spread(Estado, disp) %>%
+  arrange(desc(Existente)) %>%
+  adorn_totals("row"), 
+  caption = "CLASS B INVENTORY BUILDINGS IN TIJUANA")
+  , comment = FALSE, caption.placement = "top", include.rownames = FALSE, format.args = list(big.mark = ",", decimal.mark = ".")) 
+
+
+
+```
+
+
+
+```{r warning=FALSE, echo=FALSE, results='asis'}
+print.xtable(xtable(naves %>%
+  select("Parque Industrial", Clase, Estado, "Espacio Disponible") %>%
+  filter(Clase %in% c("C")) %>%
+  group_by(`Parque Industrial`, Estado) %>%
+  summarise(disp = sum(`Espacio Disponible`, na.rm = TRUE)) %>%
+  spread(Estado, disp) %>%
+  arrange(desc(Existente)) %>%
+  adorn_totals("row"), 
+  caption = "CLASS C INVENTORY BUILDINGS IN TIJUANA")
+  , comment = FALSE, caption.placement = "top", include.rownames = FALSE, format.args = list(big.mark = ",", decimal.mark = ".")) 
+
+```
+
+# SIGNIFICANT TRASACTIONS ACCORDING TO COLLIERS 1Q2018
+
+\begin{table}[ht]
+\centering
+\caption{Significant transactions according to COLLIERS}
+\begin{tabular}{lll}
+ \hline
+ TENANT & SIZE & DETAILS \\
+ \hline
+ TACNA              & 183,000  & Expansion in TAE park\\
+ Smurfit Kappa      & 143,000  & New Lease with Vesta in ALAMAR\\
+ Global Logistics   & 146,000  & Expansion in Valle Bonito \\
+ Mam de la frontera & 126,345  & Expansion along Blv.Benitez\\
+ Benson             & 89,000   & New lease in El Florido\\
+ Prime Wheel        & 61,000   & Expansion in Ciudad Industrial\\
+ Avery              & 49310    & Expansion in Pacifico\\
+ \hline
+ \end{tabular}
+\end{table}
+
+
+According to COLLIERS absorption continues on a strong course, better than most forecas predicted. Net absorption according to COLLIERS is $1M$ $sqf^2$
+
+The largest submarkets according to COLLIERS are in PACIFICO, CIUDAD INDUSTRIAL, SECCION DORADA, CHILPANCINGO, EL FLORIDO,TERAN ALAMAR, EL AGUILA, LOS PINOS.
+
+# SIGNIFICANT TRANSACTIONS ACCORDING TO NAI 1Q2018
+
+\begin{table}[ht]
+\centering
+\caption{Significant transactions in Tijuana}
+\begin{tabular}{lll}
+\hline
+TENANT & SIZE & LOCATION \\
+\hline
+MARKWINS BEAUTY        & 183,063   & TAE\\
+SMURFIT KAPPA          & 143,337   & FORMER DELTA\\
+TECMA BTS              & 135,914   & FINSA ALAMAR\\
+JONATHAN FURNITURE     & 124,680   & FIMHER CENTRAL DETALLISTA\\  
+TRUEBLUE MFG           & 106,564   & TIP MPA OTAY\\
+OPA                    & 84,384    & VESTA FLORIDO INDUSTRIAL PARK\\
+BENSON                 & 83,000    & EL REALITO II TyG\\
+CODAN                  & 63,908    & VESTA LA MESA\\
+PRIMEWHEEL             & 61,409    & EX TRUE BLUE CIUDAD INDUSTRIAL\\
+WS DISPLAY             & 61,200    & MIRABELLA III ATISA\\
+FOAM DE MEXICO         & 55,000    & EX ROTRON CD. INDUSTRIAL OTAY\\
+FOXCONN                & 53,299    & COMTEX LA MESA\\
+AVERY PRODUCTS         & 49,310    & VESTA CAFE PACIFICO II\\
+MASTERPIECE GALLERY    & 43,500    & VALLE BONITO SHELTER\\
+LIBERTY PLASTICS       & 35,500    & EX CUBIC MISIONES OTAY\\
+PC MANUFACTURING       & 19,500    & GIRASOL II\\
+MARKWINS BEAUTY        & -30,000   & TAE\\
+OPA                    & -41,069   & VESTA FLORIDO INDUSTRIAL PARK\\
+GLOBAL TRADE LOGISTICS & -58,125   & VALLE BONITO SHELTER\\
+BENCHMARK              & - 106,564 & TIP MPA OTAY\\
+\hline
+\end{tabular}
+\end{table}
+
+
+
+
+```{r}
+
+library(zoo)
+library(lubridate)
+
+df <- Listado_de_propiedades_industriales_en_Tijuana %>%
+  select(DATE, INVENTORY, AVAILABILITY, `VACANCY RATE`, `GROSS ABSORPTION`) %>%
+  rename(.,  "vacancy_rate" = `VACANCY RATE`,
+         "gross_absorption" = `GROSS ABSORPTION`) %>%
+  mutate(quarter = str_extract(DATE, "\\d"),
+         year = str_extract(DATE, "\\d{4}"),
+         date = parse_date_time(paste(year, quarter, sep = "-"), orders = "%Y%q"))
+
+df <- transform(df, A.index=100*INVENTORY/INVENTORY[1], B.index=100*AVAILABILITY/AVAILABILITY[1], C.index = 100*gross_absorption/gross_absorption[1], D.index = 100*vacancy_rate/vacancy_rate[1]) %>%
+  select(date, A.index, B.index,C.index, D.index)
+  
+df
+  
+
+
+
+
+df
+  gather(datos, indice, -DATE) %>%
+  ggplot(aes(DATE, indice)) + 
+  geom_point() +
+  facet_wrap(~datos)
+
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
