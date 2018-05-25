@@ -14,16 +14,17 @@ bd <- read_excel("BIE_BIE20180416182227.xls",
 
 ### Tendencia del Indicador Global de la Actividad Económica
 
+colnames(bd)
 
+
+bd %>% 
+  select(contains("Indicador global de la actividad económica Tendencia"), Periodo) %>%
+  rename_at(vars(contains("Indicador global de la actividad económica Tendencia")), funs(stringr::str_replace_all(.,"(.+>)", "")))
 
 
 bd %>%
   select(contains("Indicador global de la actividad económica Tendencia"), Periodo) %>%
-  rename_all(
-    funs(
-      stringr::str_replace_all(.,"(.+>)", "")
-    )
-  ) %>%
+  rename_all(funs(stringr::str_replace_all(.,"(.+>)", "")))
   rename("IGAE" = " Indicador global de la actividad económica Tendencia f3/ (Índice base 2013=100)") %>%
   separate(Periodo, into = c("year", "month"), sep = "/") %>%
   filter(!is.na(IGAE)) %>% 

@@ -42,6 +42,21 @@ El propósito de estudiar la marcha de los indicadores cada mes tiene el objetiv
 
 ```{r warning=FALSE, echo=FALSE, fig.show='hold', fig.align='right', fig.width=3.5, fig.height=2.5}
 
+dta <- bd %>%
+  select(contains("Indicador global de la actividad económica Tendencia"), Periodo) %>%
+  
+
+
+
+
+
+
+
+
+
+
+
+
 bd %>%
   select(contains("Indicador global de la actividad económica Tendencia"), 
     Periodo) %>%
@@ -115,7 +130,7 @@ db %>%
   geom_point(size = 0.2) +
   geom_vline(aes(xintercept = as.numeric(Periodo[c(24)])), linetype = 4, colour = "black") +
   geom_line(size = 0.2, color = "#000000") +
-  geom_ma(n = 3, size = .5) +
+  geom_map(n = 3, size = .5) +
   scale_x_date(date_breaks = "3 months", 
                date_labels = "%b %y") +
   xlab(label = "PERIODO") +
