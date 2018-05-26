@@ -112,7 +112,7 @@ dna %>%
   theme_minimal() +
   xlab(label = NULL) +
   ylab(label = "Leasing rate") +
-  theme(legend.title = element_text(size = 9), legend.text = element_text(size = 6), legend.position = "bottom")
+  theme(legend.title = element_text(size = 9), legend.text = element_text(size = 6), legend.position = "bottom", axis.text = element_text(size = 6))
 
 
 
