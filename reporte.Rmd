@@ -15,8 +15,3 @@ output:
 ```{r child="cap_1.Rmd"}
 
 ```
-
-```{r child="cap_2.Rmd"}
-
-```
-
