@@ -21,7 +21,7 @@ dna <- gs_title("dna") %>%
 En la primera tabla observamos el precio de arrendamient en el submercado _El Florido - Boulevard 2000_, el cual se encuentra entre 0.44 y 0.55 dólares por pié cuadrado. La nave industrial cuyo precio es el más alto es la nave Truper que arrienda Bustamante Realty Group. 
 
 
-```{r warning=FALSE, out.width='.49\\linewidth', echo=FALSE, fig.width=3.5, fig.height=2.5, fig.show='hold', fig.align='left', results='asis'}
+```{r warning=FALSE,  echo=FALSE, fig.width=3.5, fig.height=2.5, fig.show='hold', fig.align='left', results='asis'}
 print.xtable(xtable(dna %>%
   select(`Empresa de Arrendamiento`, Nombre, Submercado, costo_de_arrendamiento) %>%
   spread(Submercado, costo_de_arrendamiento) %>%
@@ -34,7 +34,7 @@ print.xtable(xtable(dna %>%
 
 En la siguiente tabla se muestra el precio de arrendamiento para el submercado Pacífico - Nordika, el precio de arrendamiento en este submercado, según datos de _SOLILI_ varía entre $\$40 * ft^2$ y $\$45 * ft^2$ 
 
-```{r warning=FALSE, out.width='.49\\linewidth', echo=FALSE, fig.width=3.5, fig.height=2.5, fig.show='hold', fig.align='left', results='asis'}
+```{r warning=FALSE,  echo=FALSE, fig.width=3.5, fig.height=2.5, fig.show='hold', fig.align='left', results='asis'}
 print.xtable(xtable(dna %>%
   select(`Empresa de Arrendamiento`, Nombre, Submercado, costo_de_arrendamiento) %>%
   spread(Submercado, costo_de_arrendamiento) %>%
@@ -46,7 +46,7 @@ print.xtable(xtable(dna %>%
 
 
 
-```{r warning=FALSE, out.width='.49\\linewidth', echo=FALSE, fig.width=3.5, fig.height=2.5, fig.show='hold', fig.align='left', results='asis'}
+```{r warning=FALSE,  echo=FALSE, fig.width=3.5, fig.height=2.5, fig.show='hold', fig.align='left', results='asis'}
 print.xtable(xtable(dna %>%
   select(`Empresa de Arrendamiento`, Nombre, Submercado, costo_de_arrendamiento) %>%
   spread(Submercado, costo_de_arrendamiento) %>%
@@ -59,7 +59,7 @@ print.xtable(xtable(dna %>%
 
 
 
-```{r warning=FALSE, out.width='.49\\linewidth', echo=FALSE, fig.width=3.5, fig.height=2.5, fig.show='hold', fig.align='left', results='asis'}
+```{r warning=FALSE,  echo=FALSE, fig.width=3.5, fig.height=2.5, fig.show='hold', fig.align='left', results='asis'}
 print.xtable(xtable(dna %>%
   select(`Empresa de Arrendamiento`, Nombre, Submercado, costo_de_arrendamiento) %>%
   spread(Submercado, costo_de_arrendamiento) %>%
@@ -72,7 +72,7 @@ print.xtable(xtable(dna %>%
 
 
 
-```{r warning=FALSE, out.width='.49\\linewidth', echo=FALSE, fig.width=3.5, fig.height=2.5, fig.show='hold', fig.align='left', results='asis'}
+```{r warning=FALSE,  echo=FALSE, fig.width=3.5, fig.height=2.5, fig.show='hold', fig.align='left', results='asis'}
 print.xtable(xtable(dna %>%
   select(`Empresa de Arrendamiento`, Nombre, Submercado, costo_de_arrendamiento) %>%
   spread(Submercado, costo_de_arrendamiento) %>%
@@ -83,97 +83,97 @@ print.xtable(xtable(dna %>%
 ```
 
 
-\FloatBarrier
+
 
 
 En la siguiente gráfica se incluye el precio de arrendamiento promedio por submercado, ordenados de mayor a menor. En promedio, el submercado con mayor precio de arrendamiento por pie cuadrado es _El Florido - Boulevard 2000_ posteriormente, _Pacífico - Nordika_, _Otay - Alamar_, _Insurgentes - El Águila_ y, _La Mesa - Vía Rápida_. 
 
 
-```{r warning=FALSE, out.width='.49\\linewidth', echo=FALSE, fig.width=3.5, fig.height=2.5, fig.show='hold', fig.align='left', results='asis'}
+```{r warning=FALSE,  echo=FALSE, fig.width=5.5, fig.height=3.5, fig.show='hold', fig.align='left', results='asis'}
+
 dna %>%
   select(`Empresa de Arrendamiento`, Nombre, Submercado, costo_de_arrendamiento) %>%
-  group_by(Submercado) %>% 
+  group_by(Submercado)                                                           %>% 
   summarise(lease = mean(costo_de_arrendamiento, na.rm = TRUE),
-         n = n()) %>%
+         n = n())                                                                %>%
   ggplot(aes(x = reorder(Submercado,lease), lease, colour = Submercado)) + 
-  geom_point(size = .2) + 
+  geom_point(size = .5) + 
   geom_text_repel(aes(label = factor(n))) +
   coord_flip() +
   theme_minimal() +
   theme(legend.position = "none", 
-        title            = element_text(size   = 8,
+        title            = element_text(size   = 10,
                                         family = "Roboto Condensed Light",
                                         color  = "#ca2128"),
-        axis.title.x     = element_text(size   = 6,
+        axis.title.x     = element_text(size   = 8,
                                         colour = "black",
                                         family = "Roboto Black",
                                         color  = "#666666"),
-        axis.title.y     = element_text(size   = 6,
+        axis.title.y     = element_text(size   = 8,
                                         colour = "black",
                                         family = "Roboto Black",
                                         color  = "#666666"),
         axis.text.x      = element_text(angle  = 45,
                                         hjust  = 1,
-                                        size   = 5,
+                                        size   = 8,
                                         family = "Roboto Thin",
-                                        color  = "#323232"),
-        axis.text.y      = element_text(size   = 5,
+                                        color  = "#000000"),
+        axis.text.y      = element_text(size   = 8,
                                         family = "Roboto Thin",
-                                        color  = "#323232"),
-        plot.subtitle    = element_text(size   = 5,
+                                        color  = "#000000"),
+        plot.subtitle    = element_text(size   = 6,
                                         color  = "black"),
         plot.caption     = element_text(color  = "#191919",
-                                        size   = 4,
+                                        size   = 5,
                                         family = "Roboto Thin"),
-        panel.grid.major = element_line(size   = 0.2)) + 
+        panel.grid.major = element_line(size   = 0.5)) + 
   xlab(label = "Submarket") +
   ylab(label = "Leasing rate") +
   ggtitle("Average lease rate by submarket")
+
 ```
 
 
 
 
-
-```{r warning=FALSE, out.width='.49\\linewidth', echo=FALSE, fig.width=3.5, fig.height=2.5, fig.show='hold', fig.align='left', results='asis'}
+```{r warning=FALSE,  echo=FALSE, fig.width=5.5, fig.height=3.5, fig.show='hold', fig.align='left', results='asis'}
 dna %>%
   select(`Empresa de Arrendamiento`, Nombre, Submercado, costo_de_arrendamiento) %>%
   group_by(`Empresa de Arrendamiento`, Submercado) %>% 
   summarise(lease = mean(costo_de_arrendamiento, na.rm = TRUE)) %>%
   ggplot(aes(x = reorder(`Empresa de Arrendamiento`,lease), lease)) + 
-  geom_point(aes(colour = Submercado), size = .2) + 
-  coord_flip() + 
+  geom_point(aes(colour = Submercado), size = .2) +
   theme_minimal() +
   xlab(label = NULL) +
   ylab(label = "Leasing rate") +
   theme(legend.title = element_text(size = 6, face = "bold"), legend.text = element_text(size = 5), legend.position = "bottom", axis.text = element_text(size = 7), legend.justification = c("left")) +
   ggtitle("Leasing rate by brokerage firm") +
   theme(legend.position = "none", 
-        title            = element_text(size   = 8,
+        title            = element_text(size   = 10,
                                         family = "Roboto Condensed Light",
                                         color  = "#ca2128"),
-        axis.title.x     = element_text(size   = 6,
+        axis.title.x     = element_text(size   = 8,
                                         colour = "black",
                                         family = "Roboto Black",
                                         color  = "#666666"),
-        axis.title.y     = element_text(size   = 6,
+        axis.title.y     = element_text(size   = 8,
                                         colour = "black",
                                         family = "Roboto Black",
                                         color  = "#666666"),
         axis.text.x      = element_text(angle  = 45,
                                         hjust  = 1,
-                                        size   = 5,
+                                        size   = 8,
                                         family = "Roboto Thin",
-                                        color  = "#323232"),
-        axis.text.y      = element_text(size   = 5,
+                                        color  = "#000000"),
+        axis.text.y      = element_text(size   = 8,
                                         family = "Roboto Thin",
-                                        color  = "#323232"),
-        plot.subtitle    = element_text(size   = 5,
+                                        color  = "#000000"),
+        plot.subtitle    = element_text(size   = 6,
                                         color  = "black"),
         plot.caption     = element_text(color  = "#191919",
-                                        size   = 4,
+                                        size   = 5,
                                         family = "Roboto Thin"),
-        panel.grid.major = element_line(size   = 0.2))
+        panel.grid.major = element_line(size   = 0.5))
 ```
 
 
@@ -181,48 +181,45 @@ dna %>%
 
 
 
-```{r warning=FALSE, out.width='.49\\linewidth', echo=FALSE, fig.width=3.5, fig.height=2.5, fig.show='hold', fig.align='left', results='asis'}
+```{r warning=FALSE, echo=FALSE, fig.width=5.5, fig.height=3.5, fig.show='hold', fig.align='left', results='asis'}
 dna %>%
   select(`Empresa de Arrendamiento`, Nombre, Submercado, costo_de_arrendamiento, Desarrollardor) %>%
   group_by(Submercado, Nombre, `Empresa de Arrendamiento`, Desarrollardor) %>% 
   summarise(lease = mean(costo_de_arrendamiento, na.rm = TRUE)) %>%
   ggplot(aes(x = reorder(Submercado, lease), y = lease)) + 
   geom_boxplot() +
-  geom_point(size = .2) + 
-  coord_flip() + 
+  geom_point(size = .2) +
   theme_minimal() + 
   xlab(label =  "Submarket") +
   ylab(label = "Leasing rate") +
   ggtitle("Average asking price dispersion by submarket") +
   theme(legend.position = "none", 
-        title            = element_text(size   = 8,
+        title            = element_text(size   = 10,
                                         family = "Roboto Condensed Light",
                                         color  = "#ca2128"),
-        axis.title.x     = element_text(size   = 6,
+        axis.title.x     = element_text(size   = 8,
                                         colour = "black",
                                         family = "Roboto Black",
                                         color  = "#666666"),
-        axis.title.y     = element_text(size   = 6,
+        axis.title.y     = element_text(size   = 8,
                                         colour = "black",
                                         family = "Roboto Black",
                                         color  = "#666666"),
         axis.text.x      = element_text(angle  = 45,
                                         hjust  = 1,
-                                        size   = 5,
+                                        size   = 8,
                                         family = "Roboto Thin",
-                                        color  = "#323232"),
-        axis.text.y      = element_text(size   = 5,
+                                        color  = "#000000"),
+        axis.text.y      = element_text(size   = 8,
                                         family = "Roboto Thin",
-                                        color  = "#323232"),
-        plot.subtitle    = element_text(size   = 5,
+                                        color  = "#000000"),
+        plot.subtitle    = element_text(size   = 6,
                                         color  = "black"),
         plot.caption     = element_text(color  = "#191919",
-                                        size   = 4,
+                                        size   = 5,
                                         family = "Roboto Thin"),
-        panel.grid.major = element_line(size   = 0.2))
+        panel.grid.major = element_line(size   = 0.5))
 ```
-
-
 
 
 

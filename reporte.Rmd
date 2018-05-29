@@ -1,15 +1,11 @@
 ---
 header-includes:
-- \usepackage{fancyhdr}
-- \usepackage{multicol}
-- \newcommand{\btwocol}{\begin{multicols}{2}}
-- \newcommand{\etwocol}{\end{multicols}}
-- \usepackage[section]{placeins}
+
+fontfamily: mathpazo
 output:
   pdf_document:
-    fig_caption: yes
-  html_document:
-    df_print: paged
+    template: quarterly_report.tex
+  latex_engine: xelatex
 ---
 \addtolength{\headheight}{1.0cm} 
 \pagestyle{fancyplain} 
