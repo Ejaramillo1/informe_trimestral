@@ -1,0 +1,203 @@
+
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = FALSE)
+
+library(easypackages)
+my_packages <- c("tidyverse", "googlesheets", "extrafont", "ggrepel", "xtable")
+libraries(my_packages)
+
+
+dna <- gs_title("dna") %>%
+  gs_read(ws = "Mayo")
+
+
+```
+
+
+# Reporte de mercado para el sector de Bienes Raíces en Tijuana
+
+* **Absorción neta sigue estancada en Tijuana durante el 1Q 2018**
+* **El submercado con mayor cantidad de edificios disponibles es Otay - Alamar**
+* **En el mercado de Tijuana se encuentran disponibles aproximadamente 45 naves industriales que representan**
+
+
+En la siguiente tabla observamos el precio de arrendamiento por submercado en Tijuana, adicionalmente tenemos el número de naves y, la empresa de arrendamiento. En total tenemos 22 naves industriales existentes en Tijuana, cuyo precio de arrendamiento varía entre $.445\cent$
+
+
+```{r}
+
+dna %>%
+  filter(Estado %in% c("Existente", "En construcción", "Planeado")) %>%
+  group_by(Submercado) %>%
+  summarise(available = mean(`Espacio Disponible`, na.rm = TRUE))
+
+```
+
+
+
+
+```{r warning=FALSE,  echo=FALSE, results='asis'}
+
+
+t1 <- dna %>%
+  select(`Empresa de Arrendamiento`, Nombre, Submercado, costo_de_arrendamiento, Estado) %>%
+  filter(Estado %in% c("Existente")) %>%
+  group_by(Submercado, `Empresa de Arrendamiento`, Nombre) %>%
+  summarise(lease = mean(costo_de_arrendamiento, na.rm = TRUE)) %>%
+  spread(Submercado, lease) 
+
+t1.1 <- xtable(t1 %>%
+  select(`Empresa de Arrendamiento`, `Nombre`, `Otay - Alamar`, `El Florido - Boulevard 2000`, `Pacifico - Nordika`, `Insurgentes - El Aguila`, `La mesa - Via Rapida`) %>%
+  arrange_(., ~desc(`Otay - Alamar`, `El Florido - Boulevard 2000`, `Pacifico - Nordika`, `Insurgentes - El Aguila`, `La mesa - Via Rapida`)))
+
+
+print.xtable(t1.1, comment = FALSE, caption.placement = "top", include.rownames = FALSE, size = c("\\setlength{\\tabcolsep}{5pt}\\fontsize{7pt}{10pt}\\selectfont"), scalebox = 0.8, booktabs = TRUE, floating = FALSE, latex.environments = "", table.placement = "H")
+
+```
+
+
+
+
+
+
+##Leasing rates by submarkets and brokerage firm
+
+
+```{r warning=FALSE,  echo=FALSE, fig.width=5.5, fig.height=3.5, fig.show='hold', fig.align='left', results='asis'}
+
+dna %>%
+  select(`Empresa de Arrendamiento`, Nombre, Submercado, costo_de_arrendamiento) %>%
+  group_by(Submercado)                                                           %>% 
+  summarise(lease = mean(costo_de_arrendamiento, na.rm = TRUE),
+         n = n())                                                                %>%
+  ggplot(aes(x = reorder(Submercado,lease), lease, colour = Submercado)) + 
+  geom_point(size = .5) + 
+  geom_text_repel(aes(label = factor(n))) +
+  coord_flip() +
+  theme_minimal() +
+  theme(legend.position = "none", 
+        title            = element_text(size   = 10,
+                                        family = "Roboto Condensed Light",
+                                        color  = "#ca2128"),
+        axis.title.x     = element_text(size   = 8,
+                                        colour = "black",
+                                        family = "Roboto Black",
+                                        color  = "#666666"),
+        axis.title.y     = element_text(size   = 8,
+                                        colour = "black",
+                                        family = "Roboto Black",
+                                        color  = "#666666"),
+        axis.text.x      = element_text(angle  = 45,
+                                        hjust  = 1,
+                                        size   = 8,
+                                        family = "Roboto Thin",
+                                        color  = "#000000"),
+        axis.text.y      = element_text(size   = 8,
+                                        family = "Roboto Thin",
+                                        color  = "#000000"),
+        plot.subtitle    = element_text(size   = 6,
+                                        color  = "black"),
+        plot.caption     = element_text(color  = "#191919",
+                                        size   = 5,
+                                        family = "Roboto Thin"),
+        panel.grid.major = element_line(size   = 0.5)) + 
+  xlab(label = "Submarket") +
+  ylab(label = "Leasing rate") +
+  ggtitle("Average lease rate by submarket")
+
+```
+
+
+
+
+```{r warning=FALSE,  echo=FALSE, fig.width=5.5, fig.height=3.5, fig.show='hold', fig.align='left', results='asis'}
+dna %>%
+  select(`Empresa de Arrendamiento`, Nombre, Submercado, costo_de_arrendamiento) %>%
+  group_by(`Empresa de Arrendamiento`, Submercado) %>% 
+  summarise(lease = mean(costo_de_arrendamiento, na.rm = TRUE)) %>%
+  ggplot(aes(x = reorder(`Empresa de Arrendamiento`,lease), lease)) + 
+  geom_point(aes(colour = Submercado), size = .2) +
+  theme_minimal() +
+  xlab(label = NULL) +
+  ylab(label = "Leasing rate") +
+  theme(legend.title = element_text(size = 6, face = "bold"), legend.text = element_text(size = 5), legend.position = "bottom", axis.text = element_text(size = 7), legend.justification = c("left")) +
+  ggtitle("Leasing rate by brokerage firm") +
+  theme(legend.position = "none", 
+        title            = element_text(size   = 10,
+                                        family = "Roboto Condensed Light",
+                                        color  = "#ca2128"),
+        axis.title.x     = element_text(size   = 8,
+                                        colour = "black",
+                                        family = "Roboto Black",
+                                        color  = "#666666"),
+        axis.title.y     = element_text(size   = 8,
+                                        colour = "black",
+                                        family = "Roboto Black",
+                                        color  = "#666666"),
+        axis.text.x      = element_text(angle  = 45,
+                                        hjust  = 1,
+                                        size   = 8,
+                                        family = "Roboto Thin",
+                                        color  = "#000000"),
+        axis.text.y      = element_text(size   = 8,
+                                        family = "Roboto Thin",
+                                        color  = "#000000"),
+        plot.subtitle    = element_text(size   = 6,
+                                        color  = "black"),
+        plot.caption     = element_text(color  = "#191919",
+                                        size   = 5,
+                                        family = "Roboto Thin"),
+        panel.grid.major = element_line(size   = 0.5))
+```
+
+
+
+
+
+
+```{r warning=FALSE, echo=FALSE, fig.width=5.5, fig.height=3.5, fig.show='hold', fig.align='left', results='asis'}
+dna %>%
+  select(`Empresa de Arrendamiento`, Nombre, Submercado, costo_de_arrendamiento, Desarrollardor) %>%
+  group_by(Submercado, Nombre, `Empresa de Arrendamiento`, Desarrollardor) %>% 
+  summarise(lease = mean(costo_de_arrendamiento, na.rm = TRUE)) %>%
+  ggplot(aes(x = reorder(Submercado, lease), y = lease)) + 
+  geom_boxplot() +
+  geom_point(size = .2) +
+  theme_minimal() + 
+  xlab(label =  "Submarket") +
+  ylab(label = "Leasing rate") +
+  ggtitle("Average asking price dispersion by submarket") +
+  theme(legend.position = "none", 
+        title            = element_text(size   = 10,
+                                        family = "Roboto Condensed Light",
+                                        color  = "#ca2128"),
+        axis.title.x     = element_text(size   = 8,
+                                        colour = "black",
+                                        family = "Roboto Black",
+                                        color  = "#666666"),
+        axis.title.y     = element_text(size   = 8,
+                                        colour = "black",
+                                        family = "Roboto Black",
+                                        color  = "#666666"),
+        axis.text.x      = element_text(angle  = 45,
+                                        hjust  = 1,
+                                        size   = 8,
+                                        family = "Roboto Thin",
+                                        color  = "#000000"),
+        axis.text.y      = element_text(size   = 8,
+                                        family = "Roboto Thin",
+                                        color  = "#000000"),
+        plot.subtitle    = element_text(size   = 6,
+                                        color  = "black"),
+        plot.caption     = element_text(color  = "#191919",
+                                        size   = 5,
+                                        family = "Roboto Thin"),
+        panel.grid.major = element_line(size   = 0.5))
+```
+
+
+
+
+

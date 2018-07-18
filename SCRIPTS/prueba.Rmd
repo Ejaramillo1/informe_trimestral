@@ -1,0 +1,38 @@
+---
+header-includes:
+- \usepackage{fancyhdr}
+- \usepackage{wasysym}
+- \usepackage{multicol}
+- \newcommand{\btwocol}{\begin{multicols}{2}}
+- \newcommand{\etwocol}{\end{multicols}}
+- \usepackage[section]{placeins}
+- \usepackage{graphicx}
+- \usepackage{microtype}
+- \usepackage{booktabs}
+- \usepackage{wrapfig}
+- \usepackage{float}
+- \usepackage{charter}
+- \usepackage{courier}
+- \usepackage{enumitem}
+- \setlist{noitemsep, nolistsep}
+- \usepackage{caption}
+- \captionsetup[table]{labelfont={bf,sf},labelsep=period,justification=justified}
+- \captionsetup[figure]{labelfont={sf,bf},labelsep=period,justification=justified, font=small}
+- \setlength{\abovecaptionskip}{10pt}
+- \setlength{\parskip}{6pt}
+- \usepackage[dvipsnames,svgnames]{xcolor}
+- \usepackage[spanish]{babel}
+output:
+  pdf_document
+---
+
+
+
+\addtolength{\headheight}{1.0cm} 
+\pagestyle{fancyplain} 
+\rhead{\includegraphics[height=0.9cm]{C:/Users/pvelazquez/Google Drive/INFORME TRIMESTRAL/INFORME_TRIMESTRAL/logo.jpg}}
+\renewcommand{\headrulewidth}{0pt}
+
+```{r child="cap_1.Rmd"}
+
+```

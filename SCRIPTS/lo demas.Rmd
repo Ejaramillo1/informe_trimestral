@@ -1,0 +1,548 @@
+
+### Exportaciones
+
+
+```{r warning=FALSE, fig.width=7, fig.height=5, echo=FALSE}
+
+
+
+bd %>%
+  select(contains("Exportaciones no petroleras"), Periodo) %>%
+  rename_all(
+    funs(
+      str_replace_all(., "(.+>)", "") %>%
+        str_trim(., side = "both")
+    )
+  ) %>%
+  rename(., "SERIE ORIGINAL" = "Exportaciones no petroleras Original r3 / f15/ (Millones de dólares)",
+         "SERIE CORREGIDA POR EFECTOS CALENDARIO" = "Exportaciones no petroleras Original corregida por efectos de calendario f16/ (Millones de dólares)",
+         "SERIE DESESTACIONALIZADA " = "Exportaciones no petroleras Desestacionalizada f16/ (Millones de dólares)",
+         "TENDENCIA" = "Exportaciones no petroleras Tendencia f16/ (Millones de dólares)",
+         "export_cicl" = "Exportaciones no petroleras Ciclo f16/ (Puntos)") %>%
+  filter(!is.na("SERIE ORIGINAL") & !Periodo %in% c("2018/02")) %>%
+  separate(Periodo, into = c("year", "month"), sep = "/") %>%
+  mutate(dia = 01,
+         Periodo = mdy(paste0(month, "-", dia, "-", year))) %>%
+  select(-year, -month, -dia, - export_cicl) %>%
+  filter(Periodo > "2009-12-01") %>%
+  gather(key = type, value = "value", -Periodo) %>%
+  ggplot(aes(Periodo, value)) + 
+  geom_line() + 
+  facet_wrap(~type) + 
+  scale_y_continuous(breaks = c(20000, 25000, 30000, 35000),labels = c("20,000", "25,000", "30,000", "35,000")) +
+  scale_x_date(date_breaks = "year", 
+               date_labels = "%b %y") + 
+  xlab(label = "PERIODO") + 
+  ylab(label = "MILLONES DE DÓLARES") +
+  labs(title = "EXPORTACIONES EN MÉXICO",
+       subtitle = "Exportaciones mexicanas en dólares periodo 2010-2018",
+       caption = "Fuente: Elaboración propia con datos del INEGI") + 
+  theme_minimal() +
+  theme(title            = element_text(size   = 15,
+                                        family = "Roboto Condensed Light",
+                                        color  = "#ca2128"),
+        axis.title.x     = element_text(size   = 9,
+                                        colour = "black",
+                                        family = "Roboto Black",
+                                        color  = "#666666"),
+        axis.title.y     = element_text(size   = 9,
+                                        colour = "black",
+                                        family = "Roboto Black",
+                                        color  = "#666666"),
+        axis.text.x      = element_text(angle  = 45,
+                                        hjust  = 1,
+                                        size   = 8,
+                                        family = "Roboto Thin",
+                                        color  = "#323232"),
+        axis.text.y      = element_text(size   = 8,
+                                        family = "Roboto Thin",
+                                        color  = "#323232"),
+        plot.subtitle    = element_text(size   = 10,
+                                        color  = "black"),
+        plot.caption     = element_text(color  = "#191919",
+                                        size   = 10,
+                                        family = "Roboto Thin"),
+        panel.grid.major = element_line(size   = 0.2),
+        legend.position = "null")
+```
+
+
+
+
+```{r warning=FALSE, fig.width=3.5, fig.height=2.5, echo=FALSE}
+bd %>%
+  select(contains("Exportaciones no petroleras"), Periodo) %>%
+  rename_all(
+    funs(
+      str_replace_all(., "(.+>)","") %>%
+        str_trim(., side = "both")
+    )
+  ) %>%
+  rename("export_dest" = "Exportaciones no petroleras Desestacionalizada f16/ (Millones de dólares)") %>%
+  filter(!is.na(export_dest) & !Periodo %in% c("2018/02")) %>%
+  separate(Periodo, into = c("year", "month"), sep = "/") %>%
+  mutate(dia = 01,
+         Periodo = mdy(paste0(month, "_", dia, "_", year)),
+         rocexp = ROC(export_dest),
+         color = if_else(rocexp < 0, "negative", "positive")) %>%
+  filter(Periodo > "2009-12-01") %>%
+  select(Periodo, export_dest, rocexp, color) %>%
+  ggplot(aes(Periodo, rocexp, fill = color)) + 
+  geom_bar(stat = "identity", position = "stack") + 
+  labs(title = "EXPORTACIONES EN MÉXICO",
+       subtitle = "Exportaciones mexicanas en Millones de dólares para el periodo 2010-2018",
+       caption = "Fuente: Elaboración propia con datos del INEGI") +
+  xlab("PERIODO") +
+  ylab("TASA DE CRECIMIENTO") +
+  scale_fill_manual(values = c(positive = "#3a3a40" , negative = "#8f8fa0")) + 
+  scale_x_date(date_breaks = "9 month", date_labels = "%b %y") + 
+  theme_minimal() +
+  theme(title            = element_text(size   = 8,
+                                        family = "Roboto Condensed Light",
+                                        color  = "#ca2128"),
+        axis.title.x     = element_text(size   = 6,
+                                        colour = "black",
+                                        family = "Roboto Black",
+                                        color  = "#666666"),
+        axis.title.y     = element_text(size   = 6,
+                                        colour = "black",
+                                        family = "Roboto Black",
+                                        color  = "#666666"),
+        axis.text.x      = element_text(angle  = 45,
+                                        hjust  = 1,
+                                        size   = 5,
+                                        family = "Roboto Thin",
+                                        color  = "#323232"),
+        axis.text.y      = element_text(size   = 5,
+                                        family = "Roboto Thin",
+                                        color  = "#323232"),
+        plot.subtitle    = element_text(size   = 5,
+                                        color  = "black"),
+        plot.caption     = element_text(color  = "#191919",
+                                        size   = 4,
+                                        family = "Roboto Thin"),
+        panel.grid.major = element_line(size   = 0.2),
+        legend.position = "null")
+
+```
+
+
+
+
+### Importaciones
+
+```{r warning=FALSE, fig.width=7, fig.height=5, echo=FALSE}
+bd %>%
+  select(contains("Importaciones no petroleras"), Periodo) %>%
+  rename_all(
+    funs(
+      str_replace_all(., "(.+>)","") %>%
+        str_trim(., side = "both")
+    )
+  ) %>%
+  rename("SERIE ORIGINAL" = "Importaciones no petroleras Original r3 / f15/ (Millones de dólares)",
+         "SERIE CORREGIDA POR EFECTOS CALENDARIO" = "Importaciones no petroleras Original corregida por efectos de calendario f16/ (Millones de dólares)",
+         "SERIE DESESTACIONALIZADA" = "Importaciones no petroleras Desestacionalizada f16/ (Millones de dólares)",
+         "TENDENCIA DE LARGO PLAZO" = "Importaciones no petroleras Tendencia f16/ (Millones de dólares)",
+         "import_cicl" = "Importaciones no petroleras Ciclo f16/ (Puntos)") %>%
+  filter(!is.na("SERIE ORIGINAL") & !Periodo %in% c("2018/02")) %>%
+  separate(Periodo, into = c("year", "month"), sep = "/") %>%
+  mutate(dia = 01,
+         Periodo = mdy(paste0(month, "_", dia, "_", year))) %>%
+  select(-year,-month, -dia, -import_cicl) %>%
+  filter(Periodo > "2009-12-01") %>%
+  gather(key = "type", value = "value", -Periodo) %>%
+  ggplot(aes(Periodo, value)) + 
+  geom_line() +
+  facet_wrap(~type) + 
+  scale_y_continuous(breaks = c(20000, 25000, 30000, 35000),labels = c("20,000", "25,000", "30,000", "35,000")) +
+  scale_x_date(date_breaks = "year", 
+               date_labels = "%b %y") + 
+  xlab(label = "PERIODO") + 
+  ylab(label = "MILLONES DE DÓLARES") + 
+  labs(title = "Importaciones en México",
+       subtitle = "Importaciones mexicanas en Millones de dólares periodo 2010-2018",
+       caption = "Fuente: Elaboración propia con datos del INEGI") + 
+  theme_minimal() +
+  theme(title            = element_text(size   = 15,
+                                        family = "Roboto Condensed Light",
+                                        color  = "#ca2128"),
+        axis.title.x     = element_text(size   = 9,
+                                        colour = "black",
+                                        family = "Roboto Black",
+                                        color  = "#666666"),
+        axis.title.y     = element_text(size   = 9,
+                                        colour = "black",
+                                        family = "Roboto Black",
+                                        color  = "#666666"),
+        axis.text.x      = element_text(angle  = 45,
+                                        hjust  = 1,
+                                        size   = 8,
+                                        family = "Roboto Thin",
+                                        color  = "#323232"),
+        axis.text.y      = element_text(size   = 8,
+                                        family = "Roboto Thin",
+                                        color  = "#323232"),
+        plot.subtitle    = element_text(size   = 10,
+                                        color  = "black"),
+        plot.caption     = element_text(color  = "#191919",
+                                        size   = 10,
+                                        family = "Roboto Thin"),
+        panel.grid.major = element_line(size   = 0.2),
+        legend.position = "null")
+
+
+```
+
+
+
+
+```{r warning=FALSE, fig.width=3.5, fig.height=2.5, echo=FALSE}
+
+bd %>%
+  select(contains("Importaciones no petroleras"), Periodo) %>%
+  rename_all(
+    funs(
+      str_replace_all(., "(.+>)","") %>%
+        str_trim(., side = "both")
+    )
+  ) %>%
+  rename("import_dest" = "Importaciones no petroleras Desestacionalizada f16/ (Millones de dólares)") %>%
+  filter(!is.na(import_dest) & !Periodo %in% c("2018/02")) %>%
+  separate(Periodo, into = c("year", "month"), sep = "/") %>%
+  mutate(dia = 01,
+         Periodo = mdy(paste0(month, "_", dia, "_", year)),
+         rocimp = ROC(import_dest),
+         color = if_else(rocimp < 0, "negative", "positive")) %>%
+  filter(Periodo > "2009-12-01") %>%
+  select(Periodo, import_dest, rocimp, color) %>%
+  ggplot(aes(Periodo, rocimp, fill = color)) + 
+  geom_bar(stat = "identity", position = "stack") +
+  xlab("PERIODO") +
+  ylab("TASA DE CRECIMIENTO") +
+  labs(title = "IMPORTACIONES EN MÉXICO",
+       subtitle = "Importaciones mexicanas en Millones de dólares para el periodo 2010-2018",
+       caption = "Fuente: Elaboración propia con datos del INEGI") +
+  scale_fill_manual(values = c(positive = "#3a3a40" , negative = "#8f8fa0")) + 
+  scale_x_date(date_breaks = "9 month", date_labels = "%b %y") + 
+  scale_fill_manual(values = c(positive = "#3a3a40" , negative = "#8f8fa0")) + 
+  scale_x_date(date_breaks = "9 month", date_labels = "%b %y") + 
+  theme_minimal() +
+  theme(title            = element_text(size   = 8,
+                                        family = "Roboto Condensed Light",
+                                        color  = "#ca2128"),
+        axis.title.x     = element_text(size   = 6,
+                                        colour = "black",
+                                        family = "Roboto Black",
+                                        color  = "#666666"),
+        axis.title.y     = element_text(size   = 6,
+                                        colour = "black",
+                                        family = "Roboto Black",
+                                        color  = "#666666"),
+        axis.text.x      = element_text(angle  = 45,
+                                        hjust  = 1,
+                                        size   = 5,
+                                        family = "Roboto Thin",
+                                        color  = "#323232"),
+        axis.text.y      = element_text(size   = 5,
+                                        family = "Roboto Thin",
+                                        color  = "#323232"),
+        plot.subtitle    = element_text(size   = 5,
+                                        color  = "black"),
+        plot.caption     = element_text(color  = "#191919",
+                                        size   = 4,
+                                        family = "Roboto Thin"),
+        panel.grid.major = element_line(size   = 0.2),
+        legend.position = "null")
+
+```
+
+### Empleo
+
+```{r warning=FALSE, fig.width=3.5, fig.height=2.5, echo=FALSE}
+
+bd %>%
+  select(contains("empleo"), Periodo) %>%
+  rename_all(
+    funs(
+      str_replace_all(., "(.+>)", "") %>%
+        str_trim(., side = "both")
+    )
+  ) %>%
+  rename("empl_manuf" = "Tendencia del empleo en las manufacturas Original corregida por efectos de calendario f10/ (Porcentaje del balance)") %>%
+  filter(!is.na(empl_manuf) & !Periodo %in% c("2018/2", "2018/3")) %>%
+  separate(Periodo, into = c("year", "month"), sep = "/") %>%
+  mutate(dia = 01,
+         Periodo = mdy(paste0(month, "-", dia, "-", year)),
+         color = if_else(empl_manuf > 0, "positive", "negative")) %>%
+  select(empl_manuf, Periodo, color) %>%
+  filter(Periodo > "2009-12-01") %>%
+  ggplot(aes(Periodo, empl_manuf, fill = color)) + 
+  geom_bar(stat = "identity", position = "stack") + 
+  xlab("PERIODO") + 
+  ylab("TASA DE CRECIMIENTO") +
+  labs(title = "TENDENCIA DEL EMPLEO EN MÉXICO",
+       subtitle = "Tendencia del empleo en la industria manufacturera en México periodo 2010-2018",
+       caption = "Fuente: Elaboración propia con datos del INEGI") +
+  scale_fill_manual(values = c(positive = "#3a3a40" , negative = "#8f8fa0")) + 
+  scale_x_date(date_breaks = "9 month", date_labels = "%b %y") + 
+  scale_fill_manual(values = c(positive = "#3a3a40" , negative = "#8f8fa0")) + 
+  scale_x_date(date_breaks = "9 month", date_labels = "%b %y") + 
+  theme_minimal() +
+  theme(title            = element_text(size   = 8,
+                                        family = "Roboto Condensed Light",
+                                        color  = "#ca2128"),
+        axis.title.x     = element_text(size   = 6,
+                                        colour = "black",
+                                        family = "Roboto Black",
+                                        color  = "#666666"),
+        axis.title.y     = element_text(size   = 6,
+                                        colour = "black",
+                                        family = "Roboto Black",
+                                        color  = "#666666"),
+        axis.text.x      = element_text(angle  = 45,
+                                        hjust  = 1,
+                                        size   = 5,
+                                        family = "Roboto Thin",
+                                        color  = "#323232"),
+        axis.text.y      = element_text(size   = 5,
+                                        family = "Roboto Thin",
+                                        color  = "#323232"),
+        plot.subtitle    = element_text(size   = 5,
+                                        color  = "black"),
+        plot.caption     = element_text(color  = "#191919",
+                                        size   = 4,
+                                        family = "Roboto Thin"),
+        panel.grid.major = element_line(size   = 0.2),
+        legend.position = "null")
+
+
+```
+
+
+# Situación del mercado inmobiliario por el lado de la oferta
+### Edificación privada de edificios industriales comerciales y de servicios
+
+```{r warning=FALSE, fig.width=3.5, fig.height=2.5, echo=FALSE}
+
+edif <- read.csv("BIE_BIE20180417124546.csv", encoding = "Latin-1")
+
+
+edif %>%
+  rename(., "edif_ind" = "Edificios.industriales..comerciales.y.de.servicios.") %>%
+  filter(!is.na(edif_ind) & !Periodo %in% c("2018/02")) %>%
+  separate(Periodo, into = c("year", "month"), sep = "/") %>%
+  mutate(dia = 01,
+         Periodo = mdy(paste0(month, "-", dia, "-", year))) %>%
+  select(-year, -month, -dia) %>%
+  filter(Periodo > "2009-12-01") %>%
+  ggplot(aes(Periodo, edif_ind)) + 
+  geom_line() +
+  xlab("PERIODO") +
+  ylab("VALOR A PRECIOS CORRIENTES") +
+  labs(title = "VALOR DE LA EDIFICACIÓN A PRECIOS CORRIENTES",
+       subtitle = "Edificación de inmuebles industriales comerciales y de servicios en México",
+       caption = "Fuente: Elaboración propia con datos del INEGI") +
+  scale_fill_manual(values = c(positive = "#3a3a40" , negative = "#8f8fa0")) + 
+  scale_x_date(date_breaks = "9 month", date_labels = "%b %y") + 
+  scale_fill_manual(values = c(positive = "#3a3a40" , negative = "#8f8fa0")) + 
+  scale_x_date(date_breaks = "9 month", date_labels = "%b %y") + 
+  theme_minimal() +
+  theme(title            = element_text(size   = 8,
+                                        family = "Roboto Condensed Light",
+                                        color  = "#ca2128"),
+        axis.title.x     = element_text(size   = 6,
+                                        colour = "black",
+                                        family = "Roboto Black",
+                                        color  = "#666666"),
+        axis.title.y     = element_text(size   = 6,
+                                        colour = "black",
+                                        family = "Roboto Black",
+                                        color  = "#666666"),
+        axis.text.x      = element_text(angle  = 45,
+                                        hjust  = 1,
+                                        size   = 5,
+                                        family = "Roboto Thin",
+                                        color  = "#323232"),
+        axis.text.y      = element_text(size   = 5,
+                                        family = "Roboto Thin",
+                                        color  = "#323232"),
+        plot.subtitle    = element_text(size   = 5,
+                                        color  = "black"),
+        plot.caption     = element_text(color  = "#191919",
+                                        size   = 4,
+                                        family = "Roboto Thin"),
+        panel.grid.major = element_line(size   = 0.2),
+        legend.position = "null")
+
+
+```
+
+### Tasa de crecimiento de la edificación de edificios industriales, comerciales y de servicios
+
+```{r warning=FALSE, fig.width=3.5, fig.height=2.5,echo=FALSE}
+
+edif %>%
+  rename(., "edif_ind" = "Edificios.industriales..comerciales.y.de.servicios.") %>%
+  filter(!is.na(edif_ind) & !Periodo %in% c("2018/02")) %>%
+  separate(Periodo, into = c("year", "month"), sep = "/") %>%
+  mutate(dia = 01,
+         Periodo = mdy(paste0(month, "-", dia, "-", year)),
+         rocedif = ROC(edif_ind),
+         color = if_else(rocedif > 0, "positive", "negative")) %>%
+  select(-year, -month, -dia) %>%
+  filter(Periodo > "2009-12-01") %>%
+  ggplot(aes(Periodo, rocedif, fill = color)) + 
+  geom_bar(stat = "identity", position = "stack") +
+  xlab("PERIODO") +
+  ylab("TASA DE CRECIMIENTO") +
+  labs(title = "Edificación",
+       subtitle = "Edificación de inmuebles industriales, comerciales y de servicios",
+       caption = "Fuente: Elaboración propia con datos del INEGI") +
+  scale_fill_manual(values = c(positive = "#3a3a40" , negative = "#8f8fa0")) + 
+  scale_x_date(date_breaks = "9 month", date_labels = "%b %y") + 
+  scale_fill_manual(values = c(positive = "#3a3a40" , negative = "#8f8fa0")) + 
+  scale_x_date(date_breaks = "9 month", date_labels = "%b %y") + 
+  theme_minimal() +
+  theme(title            = element_text(size   = 8,
+                                        family = "Roboto Condensed Light",
+                                        color  = "#ca2128"),
+        axis.title.x     = element_text(size   = 6,
+                                        colour = "black",
+                                        family = "Roboto Black",
+                                        color  = "#666666"),
+        axis.title.y     = element_text(size   = 6,
+                                        colour = "black",
+                                        family = "Roboto Black",
+                                        color  = "#666666"),
+        axis.text.x      = element_text(angle  = 45,
+                                        hjust  = 1,
+                                        size   = 5,
+                                        family = "Roboto Thin",
+                                        color  = "#323232"),
+        axis.text.y      = element_text(size   = 5,
+                                        family = "Roboto Thin",
+                                        color  = "#323232"),
+        plot.subtitle    = element_text(size   = 5,
+                                        color  = "black"),
+        plot.caption     = element_text(color  = "#191919",
+                                        size   = 4,
+                                        family = "Roboto Thin"),
+        panel.grid.major = element_line(size   = 0.2),
+        legend.position = "null")
+```
+
+
+
+
+# Situación del mercado inmobiliario para uso industrial por el lado de la demanda
+### Servicios de arrendamiento de bienes inmuebles
+
+
+```{r warning=FALSE, fig.width=3.5, fig.height=2.5, echo=FALSE}
+
+servic <- read.csv("BIE_BIE20180417143703.csv", encoding = "Latin-1")
+
+
+servic %>%
+  separate(Periodo, into = c("year", "month"), sep = "/") %>%
+  mutate(dia = 01,
+         Periodo = mdy(paste0(month, "-", dia, "-", year)),
+         color = if_else(inmob_br > 0, "positive", "negative")) %>%
+  select(-year, -month, -dia) %>%
+  filter(Periodo > "2009-12-01") %>% 
+  ggplot(aes(Periodo, inmob_br, fill = color)) + 
+  geom_bar(stat = "identity", position = "stack") +
+  labs(title = "SERVICIOS DE ARRENDAMIENTO",
+       subtitle = "Servicios de arrendamiento de bienes inmuebles",
+       caption = "Fuente: Elaboración propia con datos del INEGI") +
+  xlab("PERIODO") +
+  ylab("TASA DE CRECIMIENTO") +
+  scale_fill_manual(values = c(positive = "#3a3a40" , negative = "#8f8fa0")) + 
+  scale_x_date(date_breaks = "9 month", date_labels = "%b %y") + 
+  scale_fill_manual(values = c(positive = "#3a3a40" , negative = "#8f8fa0")) + 
+  scale_x_date(date_breaks = "9 month", date_labels = "%b %y") + 
+  theme_minimal() +
+  theme(title            = element_text(size   = 8,
+                                        family = "Roboto Condensed Light",
+                                        color  = "#ca2128"),
+        axis.title.x     = element_text(size   = 6,
+                                        colour = "black",
+                                        family = "Roboto Black",
+                                        color  = "#666666"),
+        axis.title.y     = element_text(size   = 6,
+                                        colour = "black",
+                                        family = "Roboto Black",
+                                        color  = "#666666"),
+        axis.text.x      = element_text(angle  = 45,
+                                        hjust  = 1,
+                                        size   = 5,
+                                        family = "Roboto Thin",
+                                        color  = "#323232"),
+        axis.text.y      = element_text(size   = 5,
+                                        family = "Roboto Thin",
+                                        color  = "#323232"),
+        plot.subtitle    = element_text(size   = 5,
+                                        color  = "black"),
+        plot.caption     = element_text(color  = "#191919",
+                                        size   = 4,
+                                        family = "Roboto Thin"),
+        panel.grid.major = element_line(size   = 0.2),
+        legend.position = "null")
+
+
+```
+
+### Número de empresas registradas en IMMEX
+
+
+```{r warning=FALSE, fig.width=3.5, fig.height=2.5, echo=FALSE}
+db %>%
+  select(contains("Número.de.establecimientos.activos.según.entidades.federativas.y.municipios.Total.nacional"), Periodo) %>%
+  rename("immex_no" = "Manufacturas...Industria.manufacturera..maquiladora.y.de.servicios.de.exportación..IMMEX....Por.entidad.federativa...Establecimientos.manufactureros...Número.de.establecimientos.activos.según.entidades.federativas.y.municipios.Total.nacional.b...p9...f6...Número.de.establecimientos..Mensual") %>%
+  filter(!is.na(immex_no)) %>%
+  separate(Periodo,into = c("anio", "mes")) %>%
+  mutate(day = 01,
+    periodo = ymd(as_date(paste(anio, mes, day, sep = "/")))) %>%
+  filter(periodo > "2009-12-01") %>%
+  group_by(year(periodo)) %>%
+  summarise(m_immex = mean(immex_no, na.rm = TRUE)) %>%
+  ggplot() + 
+  geom_line(aes(x = `year(periodo)`, y = m_immex)) +
+  geom_point(aes(x = `year(periodo)`, y = m_immex), size = .2) +
+  geom_label_repel(aes(x = `year(periodo)`, y = m_immex, label = round(m_immex)), size = 2) +
+  xlab("PERIODO") +
+  ylab("NUMERO DE EMPRESAS") +
+  labs(title = "Empresas registradas en IMMEX México",
+       subtitle = "Número de empresas registradas en el programa IMMEX en México") +
+  theme_minimal() +
+  theme(title            = element_text(size   = 8,
+                                        family = "Roboto Condensed Light",
+                                        color  = "#ca2128"),
+        axis.title.x     = element_text(size   = 6,
+                                        colour = "black",
+                                        family = "Roboto Black",
+                                        color  = "#666666"),
+        axis.title.y     = element_text(size   = 6,
+                                        colour = "black",
+                                        family = "Roboto Black",
+                                        color  = "#666666"),
+        axis.text.x      = element_text(angle  = 45,
+                                        hjust  = 1,
+                                        size   = 5,
+                                        family = "Roboto Thin",
+                                        color  = "#323232"),
+        axis.text.y      = element_text(size   = 5,
+                                        family = "Roboto Thin",
+                                        color  = "#323232"),
+        plot.subtitle    = element_text(size   = 5,
+                                        color  = "black"),
+        plot.caption     = element_text(color  = "#191919",
+                                        size   = 4,
+                                        family = "Roboto Thin"),
+        panel.grid.major = element_line(size   = 0.2),
+        legend.position = "null")
+  
+
+```
+
